@@ -406,10 +406,22 @@ def crear_archivo_json(lista: list) -> None:
         json.dump(lista, archivo, indent=2, ensure_ascii=False)
     print("Archivo json generado con exitos!")
 
+def crear_archivo_csv(lista_dic):
+    lista = []
+    for diccionario in lista_dic:
+        lista.append(list(diccionario.values()))
+    linea_unida = ""
+    for item in lista:
+        linea_unida += ",".join(str(i) for i in item) + "\n"
+        
+    nombre_archivo = input("ingrese el nombre del archivo csv")
+    with open(nombre_archivo, "w", encoding="utf-8") as file:   #lo abro modo escritura
+        file.writelines(linea_unida)
+
 def agregar_tipo_archivo(lista):
     respuesta = input("En que formato lo quiere guarda en csv o en json: ").lower()
     if respuesta == "csv":
-        pass
+        crear_archivo_csv(lista)
     elif respuesta == "json":
         crear_archivo_json(lista)
     else:
