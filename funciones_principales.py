@@ -1,8 +1,6 @@
 import re
 import os
 import json
-
-
 # 1.0>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # def cargar_datos_desde_archivo(archivo_csv: str) -> list:
 #     lista = []
@@ -291,11 +289,6 @@ def mostrar_datos_json(nombre_archivo: str) -> None:
 
 
 # 9>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-# Actualizar precios: Aplica un aumento del 8.4% a todos los
-# productos, utilizando la función map. Los productos actualizados se
-# guardan en el archivo "Insumos.csv".
-
-
 #otra version
 def cargar_csv(archivo: str) -> str:
     lista = []
@@ -320,6 +313,112 @@ def actualizar_precio_csv(archivo_csv: str):
     with open("insumo-copy.csv", "w", encoding="utf-8") as file:   #lo abro modo escritura
         file.writelines(linea_unida) #lo escribo
 
+
+
+# /////////////////////////////////////////////////////////////////////////////////////////////
+# PARCIAL>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# 1>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><
+def cargar_dato_a_lista_txt(txt: str) -> list:
+    with open(txt, "r") as file:
+        contenido = file.read()
+    
+    lista = contenido.split("\n")
+    return lista
+
+def mostrar_marca(lista):
+    print("Las Marcas son: ")
+    for marca in lista:
+        print(marca)
+
+
+def esta_id_en_lista(lista, id):
+    for item in lista:  #Itero la lista de diccionario
+        if str(id) in str(item["ID"]):
+            return True
+    return False
+
+def esta_en_lista_la_marca(lista, marca):
+    for item in lista:
+        if(marca.lower() == item.lower()):
+            return True
+    return False
+
+def validar_caracteristicas(entrada:str):
+    caracteristicas = entrada.split("~")
+    tam = len(caracteristicas)
+    if tam >= 1 and tam <=3:
+        return True
+    else:
+        return False
+            
+def agregar_producto(lista: list) -> None:
+    os.system("cls")
+    lista_marca = cargar_dato_a_lista_txt("marcas.txt")
+    while True:
+        try:
+            id = int(input("Ingrese Id del producto: "))
+            if not esta_id_en_lista(lista, id):
+                break
+            else:
+                print("esa clave ya esta")
+        except ValueError:
+            print("Solo ingrese numeros")
+    nombre = input("Ingrese el nombre del producto: ")
+    while True:
+        mostrar_marca(lista_marca)
+        marca = input("ingrese marca: ")
+        if esta_en_lista_la_marca(lista_marca, marca):
+            break
+        else:
+            print("La marca no esta en la opciones")
+    while True:
+        try:
+            precio = float(input("Ingrese precio del producto: "))
+            if precio > 0:
+                break
+            else:
+                print("No se puede agregar valores negativos")
+        except ValueError:
+            print("Valor invalido.")
+
+    while True:
+        caracteristica = input("ingrese caracteristica de 1 a 3: ")
+        if validar_caracteristicas(caracteristica):
+            break
+        else:
+            print("Caracteristica invalida")
+            os.system("pause")
+
+    dic = {"ID": id, "NOMBRE": nombre, "MARCA": marca, "PRECIO": precio, "CARACTERISTICAS": caracteristica}
+    lista.append(dic)
+
+# 2. Agregar una opción para guardar todos los datos actualizados (incluyendo las altas).
+# El usuario elegirá el tipo de formato de exportación: csv o json.
+
+
+def crear_archivo_json(lista: list) -> None:
+    #recibe una lista/diccionario y el nombre del archivo y genera un archivo json
+    if not lista and type(archivo) != str:
+        print("Argurmentos invalidos")
+        return
+    nombre_archivo = input("ingrese el nombre del archivo json: ")
+    with open(nombre_archivo, "w", encoding="utf-8") as archivo:
+        json.dump(lista, archivo, indent=2, ensure_ascii=False)
+    print("Archivo json generado con exitos!")
+
+def agregar_tipo_archivo(lista):
+    respuesta = input("En que formato lo quiere guarda en csv o en json: ").lower()
+    if respuesta == "csv":
+        pass
+    elif respuesta == "json":
+        crear_archivo_json(lista)
+    else:
+        print("opcion invalida")
+
+
+
+# 2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# ///////////////////////////////////////////////////////////////////////////
 def imprimir_menu():
     print("""
     ******************MENU***********************
@@ -332,7 +431,9 @@ def imprimir_menu():
     7. Guardar en formato JSON
     8. Leer desde formato JSON
     9. Actualizar precios
-    10. Salir del programa
+    10. Agregar nuevo producto
+    11. Guardar cambios
+    12. Salir del programa
     """)
 
 def mostrar_opciones():
@@ -345,6 +446,8 @@ def mostrar_opciones():
 def app_principal():
     flag_carga = False
     flag_json = False
+    flag_generar_archivo = False
+    lista_insumos = []
     while True:
         os.system("cls")
         imprimir_menu()
@@ -393,6 +496,17 @@ def app_principal():
             case 9:
                 actualizar_precio_csv("insumos.csv")
             case 10:
+                if flag_carga:
+                    flag_generar_archivo = True
+                    agregar_producto(lista_insumos)
+                else:
+                    print("primero debes cargar datos")
+            case 11:
+                if flag_generar_archivo:
+                    agregar_tipo_archivo(lista_insumos)
+                else:
+                    print("primero debes agregar un nuevo producto")
+            case 12:
                 break
             case -1:
                 print("opcion incorrecta")
